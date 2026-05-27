@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install liburing development package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liburing-dev
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DURING_KV_BUILD_SERVER=OFF
+
+      - name: Build test targets
+        run: cmake --build build --target test_protocol test_kv -j$(nproc)
+
+      - name: Run tests
+        run: ./build/test_protocol && ./build/test_kv

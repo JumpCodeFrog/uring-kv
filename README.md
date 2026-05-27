@@ -4,7 +4,7 @@
   <img alt="C++20" src="https://img.shields.io/badge/C%2B%2B-20-00FF41?style=flat-square">
   <img alt="CMake" src="https://img.shields.io/badge/build-CMake-00FF41?style=flat-square">
   <img alt="Linux 5.10+" src="https://img.shields.io/badge/Linux-5.10%2B-00FF41?style=flat-square">
-  <img alt="MIT" src="https://img.shields.io/badge/license-MIT-00FF41?style=flat-square">
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-00FF41?style=flat-square"></a>
   <img alt="platform: linux" src="https://img.shields.io/badge/platform-linux-00FF41?style=flat-square">
 </p>
 
