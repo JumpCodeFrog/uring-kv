@@ -16,7 +16,7 @@
 
 ## ⚡ What & Why
 
-`io_uring` is Linux's completion-based async I/O interface: work is submitted through SQEs and completed through CQEs, avoiding the readiness-then-syscall pattern of `epoll`. For this server, `accept`, `recv`, and `send` all go through the ring, with no blocking syscalls in the hot path. The result is a compact event loop that keeps connection state, buffers, and protocol handling explicit. This project is written as a real backend systems portfolio piece, not a tutorial wrapper around a framework.
+`io_uring` — это completion-based async I/O интерфейс Linux: работа отправляется через SQE, а результат приходит через CQE, без привычной для `epoll` схемы "дождаться готовности, потом сделать отдельный syscall". В этом сервере `accept`, `recv` и `send` проходят через ring, без blocking syscalls в горячем пути. За счёт этого event loop остаётся компактным, а состояние соединений, буферы и обработка протокола видны явно. Проект написан как реальная backend systems portfolio работа, а не как учебная обёртка вокруг фреймворка.
 
 ---
 
@@ -32,7 +32,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j$(nproc)
 
 ## 📡 Protocol
 
-Commands are plain text, one command per line, terminated by `\r\n`.
+Команды передаются обычным текстом: одна команда в строке, завершение строки — `\r\n`.
 
 | Command | Response |
 | --- | --- |
@@ -60,7 +60,7 @@ connections:1 keys:0 uptime:0s
 
 ## 📊 Benchmarks
 
-Localhost results on a 12th Gen Intel(R) Core(TM) i3-1215U, Linux 6.17.0-29-generic, liburing 2.11:
+Результаты на localhost: 12th Gen Intel(R) Core(TM) i3-1215U, Linux 6.17.0-29-generic, liburing 2.11:
 
 | Test | req/s | p50 ms | p99 ms |
 | --- | ---: | ---: | ---: |
@@ -88,13 +88,13 @@ KVStore
         + counters (connections, ops, uptime)
 ```
 
-CQE dispatch uses a compact `user_data` encoding so completions can arrive out of order without losing context:
+CQE dispatch использует компактное кодирование `user_data`, чтобы completions могли приходить не по порядку, но контекст операции не терялся:
 
 ```text
 user_data = (uint64_t(op_type) << 32) | uint64_t(fd)
 ```
 
-The high 32 bits identify the operation (`Accept`, `Recv`, `Send`), and the low 32 bits carry the socket fd.
+Старшие 32 бита определяют операцию (`Accept`, `Recv`, `Send`), младшие 32 бита хранят socket fd.
 
 ---
 
@@ -102,9 +102,9 @@ The high 32 bits identify the operation (`Accept`, `Recv`, `Send`), and the low 
 
 | Decision | Choice | Why |
 | --- | --- | --- |
-| Threading model | Single-threaded event loop | One ring owns sockets, buffers, and store state, removing locks from the core data path. |
-| I/O API | Raw `io_uring`, no Boost/ASIO | Shows direct knowledge of Linux async I/O and the SQE/CQE completion model. |
-| Protocol | Custom text protocol over RESP | Keeps the scope focused and readable while accepting limited Redis compatibility. |
+| Threading model | Single-threaded event loop | Один ring владеет sockets, buffers и состоянием store, убирая locks из core data path. |
+| I/O API | Raw `io_uring`, no Boost/ASIO | Показывает прямое понимание Linux async I/O и SQE/CQE completion model. |
+| Protocol | Custom text protocol over RESP | Сохраняет scope маленьким и понятным, принимая ограниченную Redis compatibility. |
 
 ---
 
